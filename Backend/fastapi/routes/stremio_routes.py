@@ -21,7 +21,7 @@ GENRES = [
     "Action", "Adventure", "Animation", "Biography", "Comedy",
     "Crime", "Documentary", "Drama", "Family", "Fantasy",
     "History", "Horror", "Music", "Mystery", "Romance",
-    "Sci-Fi", "Sport", "Thriller", "War", "Western"
+    "Sci-Fi", "Sport", "Thriller", "War", "Western", "Adult"
 ]
 
 
