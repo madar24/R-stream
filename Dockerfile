@@ -1,29 +1,26 @@
-FROM python:3.11-slim-bookworm
+FROM ghcr.io/astral-sh/uv:debian-slim
 
-WORKDIR /app
-
-# Install system dependencies including Tailscale tools
-RUN apt-get update && apt-get install -y \
-    build-essential \
-    libpq-dev \
-    curl \
-    jq \
-    && rm -rf /var/lib/apt/lists/*
-
-# Install Tailscale
-RUN curl -fsSL https://tailscale.com/install.sh | sh
-RUN mkdir -p /var/run/tailscale /var/cache/tailscale /var/lib/tailscale
-# Install uv package manager via pip
+ENV DEBIAN_FRONTEND=noninteractive
+ENV PYTHONUNBUFFERED=1
+ENV LANG=en_US.UTF-8
+ENV PATH="/app/.venv/bin:$PATH"
 RUN pip install uv
 
-# Install Python dependencies
-COPY pyproject.toml uv.lock ./
-RUN uv sync --frozen
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        build-essential \
+        bash \
+        git \
+        curl \
+        ca-certificates \
+        locales && \
+    locale-gen en_US.UTF-8 && \
+    curl -fsSL https://tailscale.com/install.sh | sh && \
+    rm -rf /var/lib/apt/lists/*
 
-# Copy the rest of the application
+WORKDIR /app
 COPY . .
-
-# Ensure start script is executable
+RUN uv lock
+RUN uv sync --locked
 RUN chmod +x start.sh
-
-CMD ["./start.sh"]
+CMD ["bash", "start.sh"]
