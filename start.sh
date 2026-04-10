@@ -1,20 +1,24 @@
 #!/bin/bash
 
-# 1. Force the dummy HTTP server to use IPv4 so Render stays happy
-python3 -m http.server ${PORT:-10000} --bind 0.0.0.0 --directory /tmp &
+echo "Starting Tailscale daemon in userspace networking mode..."
+# Render doesn't allow /dev/net/tun, so userspace-networking is required
+tailscaled --tun=userspace-networking --socks5-server=localhost:1055 &
 
-# 2. Start Tailscale WITHOUT the SOCKS5 server to stop the log spam
-tailscaled --tun=userspace-networking &
+# Wait a few seconds for the daemon to initialize
 sleep 5
 
-# 3. Authenticate to Tailscale as an ephemeral machine
-tailscale up --auth-key="${TAILSCALE_AUTHKEY}" --hostname="render-r-stream" --ssh  &
-sleep 10
+echo "Authenticating Tailscale..."
+# Use an ephemeral, reusable auth key provided via Render environment variables
+if [ -z "$TAILSCALE_AUTHKEY" ]; then
+  echo "Error: TAILSCALE_AUTHKEY environment variable is not set."
+else
+  tailscale up --authkey="${TAILSCALE_AUTHKEY}" --hostname="tailscale-server-singa" --ssh --accept-routes
+  
+  echo "Configuring Tailscale serve..."
+  # Proxies Tailnet traffic to your app's local port (Assuming it runs on 8000)
+  # Adjust '8000' if your app uses a different port internally.
+  tailscale serve localhost:8000
+fi
 
-tailscale serve localhost:8001
-
-# 5. Hide Python from the dummy server port
-export PORT=8001
-
-# 6. Start the bot
-uv run -m Backend
+echo "Starting the main application..."
+uv run update.py && uv run -m Backend
