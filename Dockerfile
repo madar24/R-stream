@@ -4,7 +4,6 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV PYTHONUNBUFFERED=1
 ENV LANG=en_US.UTF-8
 ENV PATH="/app/.venv/bin:$PATH"
-RUN pip install uv
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
