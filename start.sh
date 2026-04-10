@@ -14,8 +14,9 @@ if [ -z "$TAILSCALE_AUTHKEY" ]; then
 else
   tailscale up --authkey="${TAILSCALE_AUTHKEY}" --hostname="tailscale-server-singa" --ssh --accept-routes
   
-  echo "Configuring Tailscale serve..."
-  tailscale serve localhost:8001
+echo "Configuring Tailscale serve..."
+
+  tailscale serve localhost:8001 &
 fi
 
 echo "Starting the main application..."
