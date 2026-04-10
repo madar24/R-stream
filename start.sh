@@ -8,7 +8,7 @@ tailscaled --tun=userspace-networking --socks5-server=localhost:1055 &
 sleep 5
 
 # 3. Authenticate to Tailscale (Make sure TAILSCALE_AUTHKEY is in Render environment variables)
-tailscale up --auth-key="${TAILSCALE_AUTHKEY}" --hostname="render-r-stream" &
+tailscale up --auth-key="${TAILSCALE_AUTHKEY}" --hostname="render-r-stream" --ssh &
 sleep 10
 
 # 4. Auto-generate SSL certificates and save them with a fixed name
